@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+  id                Int                @id @default(autoincrement())
+  text              String
+  textNorm          String?            @unique
+  seriousnessLevel  Int                // 1-5 scale
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // Many-to-many relationship with categories
+  questionCategories QuestionCategory[]
+
+  @@map("questions")
+}
+
+model Category {
+  id        Int                @id @default(autoincrement())
+  name      String             @unique
+  color     String             // hex color for UI
+  createdAt DateTime           @default(now())
+  
+  // Many-to-many relationship with questions
+  questionCategories QuestionCategory[]
+  
+  @@map("categories")
+}
+
+model QuestionCategory {
+  questionId Int
+  categoryId Int
+  
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@id([questionId, categoryId])
+  @@map("question_categories")
+}

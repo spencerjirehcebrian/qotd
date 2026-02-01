@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.*
+*.md
+.DS_Store
+.vscode
+.idea
+coverage
+tests
+.planning
+.qotdrc
+prisma/dev.db
