@@ -42,10 +42,15 @@ const nonFlagArgs = userArgs.filter((a) => a !== "--local" && a !== "--remote");
 const isInteractive = nonFlagArgs.length === 0 && process.stdin.isTTY;
 
 if (isInteractive) {
-  // Parse just the global options for interactive mode
-  program.parse(process.argv.slice(0, 2).concat(userArgs.filter((a) => a === "--local" || a === "--remote")), { from: "user" });
+  // Resolve mode directly from argv instead of Commander (which prints help on empty args)
+  const hasLocal = userArgs.includes("--local");
+  const hasRemote = userArgs.includes("--remote");
   (async () => {
-    const mode = await resolveMode();
+    if (hasLocal && hasRemote) {
+      error("Cannot use --local and --remote together.");
+      process.exit(1);
+    }
+    const mode = hasLocal ? "local" : hasRemote ? "remote" : null;
     setModeOverride(mode);
     if (mode === "remote") await ensureRemoteConfig();
     await runInteractiveMode(program);
